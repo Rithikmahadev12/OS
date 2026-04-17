@@ -3,628 +3,173 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jay's OS Links</title>
+<title>Jay OS</title>
+
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:system-ui;
+}
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #0a0a0a;
-    min-height: 100vh;
-    color: #fff;
-    overflow-x: hidden;
-  }
+body{
+  height:100vh;
+  overflow:hidden;
+  background: radial-gradient(circle at top, #0f172a, #020617);
+  color:white;
+}
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(100,160,110,0.18) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(80,130,90,0.12) 0%, transparent 55%);
-    pointer-events: none;
-    z-index: 0;
-  }
+/* DESKTOP */
+.desktop{
+  position:relative;
+  width:100%;
+  height:100%;
+}
 
-  .screen {
-    display: none;
-    min-height: 100vh;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    position: relative;
-    z-index: 1;
-  }
-  .screen.active { display: flex; }
+/* DOCK */
+.dock{
+  position:absolute;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:12px;
+  padding:12px 18px;
+  border-radius:20px;
 
-  .glass-card {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 20px;
-    padding: 2.5rem 2rem;
-    width: 100%;
-    max-width: 360px;
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-  }
+  background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.1);
+}
 
-  .logo {
-    text-align: center;
-    margin-bottom: 1.75rem;
-  }
-  .logo-icon {
-    width: 56px; height: 56px;
-    border-radius: 14px;
-    background: rgba(100,170,115,0.25);
-    border: 1px solid rgba(100,170,115,0.4);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 26px;
-    margin: 0 auto 12px;
-  }
-  .logo h1 { font-size: 20px; font-weight: 600; color: #fff; letter-spacing: -0.3px; }
-  .logo p { font-size: 13px; color: rgba(255,255,255,0.45); margin-top: 3px; }
+.dock-item{
+  width:50px;
+  height:50px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:14px;
+  cursor:pointer;
+  transition:0.2s;
+}
 
-  .inp {
-    width: 100%;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 10px;
-    padding: 11px 14px;
-    color: #fff;
-    font-size: 14px;
-    margin-bottom: 10px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .inp:focus { border-color: rgba(100,170,115,0.6); }
-  .inp::placeholder { color: rgba(255,255,255,0.3); }
+.dock-item:hover{
+  transform:scale(1.2);
+  background:rgba(255,255,255,0.1);
+}
 
-  .btn {
-    width: 100%;
-    padding: 11px;
-    border-radius: 10px;
-    border: none;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: opacity 0.15s, transform 0.1s;
-    margin-bottom: 8px;
-  }
-  .btn:active { transform: scale(0.98); }
-  .btn-primary {
-    background: rgba(100,170,115,0.85);
-    color: #fff;
-  }
-  .btn-primary:hover { background: rgba(100,170,115,1); }
-  .btn-ghost {
-    background: rgba(255,255,255,0.07);
-    color: rgba(255,255,255,0.7);
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-  .btn-ghost:hover { background: rgba(255,255,255,0.12); }
+/* WINDOW */
+.window{
+  position:absolute;
+  width:500px;
+  height:350px;
+  top:80px;
+  left:100px;
 
-  .err {
-    font-size: 13px;
-    color: #f87171;
-    margin-bottom: 10px;
-    padding: 8px 12px;
-    background: rgba(248,113,113,0.1);
-    border-radius: 8px;
-    border: 1px solid rgba(248,113,113,0.2);
-    display: none;
-  }
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:18px;
 
-  .divider {
-    display: flex; align-items: center; gap: 10px;
-    margin: 14px 0;
-    color: rgba(255,255,255,0.25);
-    font-size: 12px;
-  }
-  .divider::before, .divider::after {
-    content: ''; flex: 1;
-    height: 1px; background: rgba(255,255,255,0.1);
-  }
+  backdrop-filter:blur(30px);
+  overflow:hidden;
+}
 
-  #os-screen {
-    display: none;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
-    padding: 0;
-  }
-  #os-screen.active { display: flex; }
+.titlebar{
+  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 10px;
+  cursor:grab;
 
-  .topbar {
-    position: sticky; top: 0; z-index: 10;
-    background: rgba(10,10,10,0.8);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-    padding: 14px 24px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .topbar-title { font-size: 16px; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; }
-  .topbar-title span { font-size: 18px; }
-  .topbar-right { display: flex; gap: 8px; align-items: center; }
-  .top-btn {
-    padding: 7px 14px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.06);
-    color: rgba(255,255,255,0.75);
-    font-size: 13px;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .top-btn:hover { background: rgba(255,255,255,0.12); }
-  .top-btn.green {
-    background: rgba(100,170,115,0.2);
-    border-color: rgba(100,170,115,0.35);
-    color: #8ecf9e;
-  }
-  .top-btn.green:hover { background: rgba(100,170,115,0.3); }
+  background:rgba(255,255,255,0.05);
+}
 
-  .launchpad {
-    padding: 28px 24px;
-    flex: 1;
-  }
+.buttons{
+  display:flex;
+  gap:6px;
+}
 
-  .section-label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.3);
-    text-transform: uppercase;
-    margin-bottom: 14px;
-  }
+.btn{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  cursor:pointer;
+}
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    gap: 12px;
-  }
+.close{ background:#ff5f56;}
+.min{ background:#ffbd2e;}
+.max{ background:#27c93f;}
 
-  .tile {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.09);
-    border-radius: 16px;
-    padding: 16px 10px 14px;
-    text-align: center;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, transform 0.15s;
-    position: relative;
-  }
-  .tile:hover {
-    background: rgba(100,170,115,0.12);
-    border-color: rgba(100,170,115,0.3);
-    transform: translateY(-2px);
-  }
-  .tile-icon {
-    width: 48px; height: 48px;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.1);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-    margin: 0 auto 10px;
-  }
-  .tile-name {
-    font-size: 12px;
-    color: rgba(255,255,255,0.8);
-    font-weight: 500;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+.window-content{
+  padding:15px;
+  font-size:14px;
+}
 
-  .loading-tiles {
-    text-align: center;
-    padding: 3rem;
-    color: rgba(255,255,255,0.3);
-    font-size: 14px;
-  }
-
-  .overlay {
-    display: none;
-    position: fixed; inset: 0; z-index: 100;
-    background: rgba(0,0,0,0.65);
-    align-items: center; justify-content: center;
-    padding: 2rem;
-  }
-  .overlay.active { display: flex; }
-
-  .modal {
-    background: #141414;
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 20px;
-    padding: 2rem;
-    width: 100%; max-width: 340px;
-  }
-  .modal h3 { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 1.25rem; }
-  .modal-inp {
-    width: 100%;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 10px;
-    padding: 10px 13px;
-    color: #fff;
-    font-size: 14px;
-    margin-bottom: 10px;
-    outline: none;
-  }
-  .modal-inp:focus { border-color: rgba(100,170,115,0.5); }
-  .modal-inp::placeholder { color: rgba(255,255,255,0.3); }
-  .modal-row { display: flex; gap: 8px; }
-  .modal-btn {
-    flex: 1; padding: 10px; border-radius: 10px;
-    border: none; font-size: 14px; font-weight: 500; cursor: pointer;
-  }
-  .modal-btn-ok { background: rgba(100,170,115,0.85); color: #fff; }
-  .modal-btn-ok:hover { background: rgba(100,170,115,1); }
-  .modal-btn-cancel { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.1); }
-  .modal-btn-cancel:hover { background: rgba(255,255,255,0.14); }
-  .modal-err { font-size: 13px; color: #f87171; margin-bottom: 10px; display: none; }
-
-  .admin-panel {
-    padding: 28px 24px;
-    flex: 1;
-  }
-  .admin-header {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 24px;
-  }
-  .admin-badge {
-    background: rgba(100,170,115,0.2);
-    border: 1px solid rgba(100,170,115,0.35);
-    color: #8ecf9e;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 6px;
-    letter-spacing: 0.05em;
-  }
-  .admin-section { margin-bottom: 28px; }
-  .admin-section-title {
-    font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.3); text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-  .admin-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 14px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 10px;
-    margin-bottom: 6px;
-    font-size: 14px;
-  }
-  .admin-row-name { color: rgba(255,255,255,0.85); display: flex; align-items: center; gap: 8px; }
-  .del-btn {
-    background: rgba(248,113,113,0.15);
-    border: 1px solid rgba(248,113,113,0.25);
-    color: #f87171;
-    border-radius: 7px;
-    padding: 5px 12px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-    transition: background 0.15s;
-  }
-  .del-btn:hover { background: rgba(248,113,113,0.28); }
-
-  .pill {
-    font-size: 10px; font-weight: 600;
-    padding: 2px 7px; border-radius: 20px;
-    background: rgba(100,170,115,0.2);
-    color: #8ecf9e; border: 1px solid rgba(100,170,115,0.3);
-  }
-
-  #admin-pass-overlay {
-    display: none; position: fixed; inset: 0; z-index: 200;
-    background: rgba(0,0,0,0.75);
-    align-items: center; justify-content: center; padding: 2rem;
-  }
-  #admin-pass-overlay.active { display: flex; }
-
-  @media (max-width: 480px) {
-    .grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
-    .topbar { padding: 12px 16px; }
-    .launchpad, .admin-panel { padding: 20px 16px; }
-  }
+.window iframe{
+  width:100%;
+  height:calc(100% - 40px);
+  border:none;
+}
 </style>
 </head>
+
 <body>
 
-<div id="auth-screen" class="screen active">
-  <div class="glass-card">
-    <div class="logo">
-      <div class="logo-icon">🖥️</div>
-      <h1>Jay's OS Links</h1>
-      <p>Your personal link launchpad</p>
-    </div>
-    <button class="btn btn-primary" onclick="showScreen('login-screen')">Sign In</button>
-    <button class="btn btn-ghost" onclick="showScreen('signup-screen')">Create Account</button>
-  </div>
-</div>
+<div class="desktop" id="desktop"></div>
 
-<div id="login-screen" class="screen">
-  <div class="glass-card">
-    <div class="logo">
-      <div class="logo-icon">👋</div>
-      <h1>Welcome back</h1>
-      <p>Sign in to continue</p>
-    </div>
-    <div class="err" id="login-err"></div>
-    <input class="inp" id="login-user" placeholder="Username" autocomplete="username" />
-    <input class="inp" id="login-pass" placeholder="Password" type="password" autocomplete="current-password" />
-    <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
-    <div class="divider">or</div>
-    <button class="btn btn-ghost" onclick="showScreen('auth-screen')">Back</button>
-  </div>
-</div>
-
-<div id="signup-screen" class="screen">
-  <div class="glass-card">
-    <div class="logo">
-      <div class="logo-icon">✨</div>
-      <h1>Create account</h1>
-      <p>Use your invite password to join</p>
-    </div>
-    <div class="err" id="signup-err"></div>
-    <input class="inp" id="su-user" placeholder="Choose a username" autocomplete="username" />
-    <input class="inp" id="su-pass" placeholder="Invite password" type="password" />
-    <button class="btn btn-primary" onclick="doSignup()">Create Account</button>
-    <div class="divider">or</div>
-    <button class="btn btn-ghost" onclick="showScreen('auth-screen')">Back</button>
-  </div>
-</div>
-
-<div id="os-screen" class="screen">
-  <div class="topbar">
-    <div class="topbar-title"><span>🖥️</span> Jay's OS Links</div>
-    <div class="topbar-right">
-      <span id="user-chip" style="font-size:13px; color:rgba(255,255,255,0.4);"></span>
-      <button class="top-btn" onclick="doLogout()">Sign out</button>
-    </div>
-  </div>
-  <div class="launchpad">
-    <div class="section-label">Launchpad</div>
-    <div class="grid" id="tile-grid">
-      <div class="loading-tiles">Loading links…</div>
-    </div>
-  </div>
-</div>
-
-<div id="admin-panel-screen" class="screen">
-  <div style="width:100%; max-width: 640px; margin: 0 auto; display:flex; flex-direction:column; min-height:100vh;">
-    <div class="topbar" style="position:sticky; top:0;">
-      <div class="topbar-title">
-        <span>⚙️</span> Admin Panel
-        <span class="admin-badge">ADMIN</span>
-      </div>
-      <div class="topbar-right">
-        <button class="top-btn green" onclick="showAddModal()">+ Add Link</button>
-        <button class="top-btn" onclick="showScreen('os-screen'); loadLinks();">← OS</button>
-      </div>
-    </div>
-    <div class="admin-panel">
-      <div class="admin-section">
-        <div class="admin-section-title">Registered Users</div>
-        <div id="admin-users-list"><div style="color:rgba(255,255,255,0.3);font-size:14px;">Loading…</div></div>
-      </div>
-      <div class="admin-section">
-        <div class="admin-section-title">All Links</div>
-        <div id="admin-links-list"><div style="color:rgba(255,255,255,0.3);font-size:14px;">Loading…</div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="admin-pass-overlay">
-  <div class="modal">
-    <h3>🔐 Admin Access</h3>
-    <div class="modal-err" id="ap-err">Wrong password.</div>
-    <input class="modal-inp" id="ap-pass" placeholder="Admin password" type="password" />
-    <div class="modal-row" style="margin-top:4px;">
-      <button class="modal-btn modal-btn-ok" onclick="checkAdminPass()">Enter</button>
-      <button class="modal-btn modal-btn-cancel" onclick="closeAdminOverlay()">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<div id="add-link-overlay" class="overlay">
-  <div class="modal">
-    <h3>Add New Link</h3>
-    <div class="modal-err" id="add-err"></div>
-    <input class="modal-inp" id="add-name" placeholder="Name (e.g. Vapor)" />
-    <input class="modal-inp" id="add-url" placeholder="URL (https://...)" />
-    <input class="modal-inp" id="add-emoji" placeholder="Emoji icon (e.g. 🔗)" maxlength="4" />
-    <div class="modal-row" style="margin-top:4px;">
-      <button class="modal-btn modal-btn-ok" onclick="confirmAddLink()">Add Link</button>
-      <button class="modal-btn modal-btn-cancel" onclick="closeAddModal()">Cancel</button>
-    </div>
-  </div>
+<div class="dock">
+  <div class="dock-item" onclick="openApp('Google','https://google.com')">🌐</div>
+  <div class="dock-item" onclick="openApp('YouTube','https://youtube.com')">▶️</div>
+  <div class="dock-item" onclick="openApp('ChatGPT','https://chat.openai.com')">💬</div>
 </div>
 
 <script>
-let currentUser = null;
-let adminPassword = null;
-let ctrlXPressed = false;
+let z = 1;
 
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  if (id === 'os-screen') loadLinks();
-  if (id === 'admin-panel-screen') loadAdmin();
-}
+function openApp(name, url){
+  const win = document.createElement("div");
+  win.className = "window";
+  win.style.zIndex = ++z;
 
-async function doLogin() {
-  const u = document.getElementById('login-user').value.trim();
-  const p = document.getElementById('login-pass').value;
-  const err = document.getElementById('login-err');
-  err.style.display = 'none';
-  try {
-    const r = await fetch('/api/login', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({username:u, password:p})
-    });
-    const data = await r.json();
-    if (data.ok) {
-      currentUser = u;
-      document.getElementById('user-chip').textContent = u;
-      showScreen('os-screen');
-    } else {
-      err.textContent = data.error; err.style.display = 'block';
-    }
-  } catch(e) { err.textContent = 'Connection error.'; err.style.display='block'; }
-}
+  win.innerHTML = `
+    <div class="titlebar">
+      <div>${name}</div>
+      <div class="buttons">
+        <div class="btn close"></div>
+        <div class="btn min"></div>
+        <div class="btn max" onclick="window.open('${url}','_blank')"></div>
+      </div>
+    </div>
+    <iframe src="${url}"></iframe>
+  `;
 
-async function doSignup() {
-  const u = document.getElementById('su-user').value.trim();
-  const p = document.getElementById('su-pass').value;
-  const err = document.getElementById('signup-err');
-  err.style.display = 'none';
-  try {
-    const r = await fetch('/api/signup', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({username:u, password:p})
-    });
-    const data = await r.json();
-    if (data.ok) {
-      currentUser = u;
-      document.getElementById('user-chip').textContent = u;
-      showScreen('os-screen');
-    } else {
-      err.textContent = data.error; err.style.display = 'block';
-    }
-  } catch(e) { err.textContent = 'Connection error.'; err.style.display='block'; }
-}
+  document.getElementById("desktop").appendChild(win);
 
-function doLogout() { currentUser = null; adminPassword = null; showScreen('auth-screen'); }
+  // DRAGGING
+  const bar = win.querySelector(".titlebar");
+  let offsetX, offsetY, isDown=false;
 
-async function loadLinks() {
-  const grid = document.getElementById('tile-grid');
-  grid.innerHTML = '<div class="loading-tiles">Loading links…</div>';
-  try {
-    const r = await fetch('/api/links');
-    const links = await r.json();
-    grid.innerHTML = '';
-    links.forEach(link => {
-      const d = document.createElement('div');
-      d.className = 'tile';
-      d.innerHTML = `<div class="tile-icon">${link.emoji||'🔗'}</div><div class="tile-name">${link.name}</div>`;
-      d.onclick = () => window.open(link.url, '_blank');
-      grid.appendChild(d);
-    });
-    if (!links.length) grid.innerHTML = '<div class="loading-tiles">No links yet. Ask an admin to add some!</div>';
-  } catch(e) {
-    grid.innerHTML = '<div class="loading-tiles">Failed to load links.</div>';
-  }
-}
-
-async function loadAdmin() {
-  const ul = document.getElementById('admin-users-list');
-  const ll = document.getElementById('admin-links-list');
-  ul.innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:14px;">Loading…</div>';
-  ll.innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:14px;">Loading…</div>';
-  try {
-    const [ur, lr] = await Promise.all([
-      fetch(`/api/users?adminPassword=${encodeURIComponent(adminPassword)}`).then(r=>r.json()),
-      fetch('/api/links').then(r=>r.json())
-    ]);
-    if (ur.ok) {
-      ul.innerHTML = ur.users.length ? ur.users.map(u =>
-        `<div class="admin-row"><div class="admin-row-name">👤 ${u}</div>
-        <button class="del-btn" onclick="adminDelUser('${u}')">Remove</button></div>`
-      ).join('') : '<div style="color:rgba(255,255,255,0.3);font-size:14px;">No users registered.</div>';
-    }
-    ll.innerHTML = lr.length ? lr.map(l =>
-      `<div class="admin-row">
-        <div class="admin-row-name"><span style="font-size:18px;">${l.emoji||'🔗'}</span> ${l.name} <span style="font-size:11px;color:rgba(255,255,255,0.3);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.url}</span></div>
-        <button class="del-btn" onclick="adminDelLink(${l.id})">Remove</button>
-      </div>`
-    ).join('') : '<div style="color:rgba(255,255,255,0.3);font-size:14px;">No links.</div>';
-  } catch(e) { ul.innerHTML = '<div style="color:#f87171;font-size:14px;">Error loading data.</div>'; }
-}
-
-async function adminDelUser(username) {
-  if (!confirm(`Remove user "${username}"?`)) return;
-  await fetch(`/api/users/${encodeURIComponent(username)}`, {
-    method:'DELETE', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({adminPassword})
+  bar.addEventListener("mousedown", (e)=>{
+    isDown = true;
+    offsetX = e.clientX - win.offsetLeft;
+    offsetY = e.clientY - win.offsetTop;
+    win.style.zIndex = ++z;
   });
-  loadAdmin();
-}
 
-async function adminDelLink(id) {
-  if (!confirm('Remove this link?')) return;
-  await fetch(`/api/links/${id}`, {
-    method:'DELETE', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({adminPassword})
+  document.addEventListener("mouseup", ()=> isDown=false);
+
+  document.addEventListener("mousemove", (e)=>{
+    if(!isDown) return;
+    win.style.left = (e.clientX - offsetX) + "px";
+    win.style.top = (e.clientY - offsetY) + "px";
   });
-  loadAdmin();
-}
 
-function showAddModal() {
-  document.getElementById('add-name').value = '';
-  document.getElementById('add-url').value = '';
-  document.getElementById('add-emoji').value = '';
-  document.getElementById('add-err').style.display = 'none';
-  document.getElementById('add-link-overlay').classList.add('active');
+  // CLOSE
+  win.querySelector(".close").onclick = ()=> win.remove();
 }
-function closeAddModal() { document.getElementById('add-link-overlay').classList.remove('active'); }
-
-async function confirmAddLink() {
-  const name = document.getElementById('add-name').value.trim();
-  const url = document.getElementById('add-url').value.trim();
-  const emoji = document.getElementById('add-emoji').value.trim() || '🔗';
-  const err = document.getElementById('add-err');
-  err.style.display = 'none';
-  try {
-    const r = await fetch('/api/links', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({adminPassword, name, url, emoji})
-    });
-    const data = await r.json();
-    if (data.ok) { closeAddModal(); loadAdmin(); }
-    else { err.textContent = data.error; err.style.display = 'block'; }
-  } catch(e) { err.textContent = 'Connection error.'; err.style.display='block'; }
-}
-
-function openAdminOverlay() {
-  document.getElementById('ap-pass').value = '';
-  document.getElementById('ap-err').style.display = 'none';
-  document.getElementById('admin-pass-overlay').classList.add('active');
-  setTimeout(() => document.getElementById('ap-pass').focus(), 100);
-}
-function closeAdminOverlay() { document.getElementById('admin-pass-overlay').classList.remove('active'); }
-function checkAdminPass() {
-  const p = document.getElementById('ap-pass').value;
-  if (p === 'messi2be') {
-    adminPassword = p;
-    closeAdminOverlay();
-    showScreen('admin-panel-screen');
-  } else {
-    document.getElementById('ap-err').style.display = 'block';
-  }
-}
-
-document.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'x') {
-    ctrlXPressed = true;
-    setTimeout(() => { ctrlXPressed = false; }, 2000);
-  }
-  if (ctrlXPressed && e.key === 'y') {
-    ctrlXPressed = false;
-    openAdminOverlay();
-  }
-  if (e.key === 'Enter') {
-    const active = document.querySelector('.screen.active');
-    if (active?.id === 'login-screen') doLogin();
-    if (active?.id === 'signup-screen') doSignup();
-    if (document.getElementById('admin-pass-overlay').classList.contains('active')) checkAdminPass();
-  }
-});
 </script>
+
 </body>
 </html>
