@@ -1,0 +1,12 @@
+{
+  "name": "jays-os-links",
+  "version": "1.0.0",
+  "description": "Jay's OS Links launchpad",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
