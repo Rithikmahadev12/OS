@@ -1,254 +1,274 @@
-/* =========================
-   JAY OS v3 (FULL WEB OS)
-   - Taskbar + Windows
-   - Draggable apps
-   - Persistent user session
-   - Backend compatible (Express unchanged)
-   ========================= */
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Jay OS v3</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jay's OS Links v3 (Fixed + Admin Safe)</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui;}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body{
-  height:100vh;
-  overflow:hidden;
-  background: radial-gradient(circle at 20% 10%, #1a2b1f, transparent 40%),
-              radial-gradient(circle at 80% 80%, #0f1a14, transparent 45%),
-              #070a08;
-  color:#fff;
-}
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0a0a;
+    min-height: 100vh;
+    color: #fff;
+    overflow-x: hidden;
+  }
 
-/* LOGIN */
-.screen{
-  display:none;
-  height:100vh;
-  align-items:center;
-  justify-content:center;
-}
-.screen.active{display:flex;}
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(100,160,110,0.18), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(80,130,90,0.12), transparent 55%);
+    pointer-events: none;
+    z-index: 0;
+  }
 
-.card{
-  width:340px;
-  padding:24px;
-  border-radius:18px;
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.1);
-  backdrop-filter:blur(20px);
-}
+  .screen {
+    display: none;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+    z-index: 1;
+  }
+  .screen.active { display: flex; }
 
-input{
-  width:100%;
-  padding:10px;
-  margin:6px 0;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,0.1);
-  background:rgba(255,255,255,0.05);
-  color:#fff;
-}
+  .glass-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 360px;
+    backdrop-filter: blur(24px);
+  }
 
-button{
-  width:100%;
-  padding:10px;
-  margin-top:8px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  background:rgba(100,170,115,0.8);
-  color:#fff;
-}
+  .inp, .modal-inp {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 10px;
+    outline: none;
+  }
 
-/* DESKTOP */
-#desktop{
-  display:none;
-  height:100vh;
-}
-#desktop.active{display:block;}
+  .btn {
+    width: 100%;
+    padding: 11px;
+    border-radius: 10px;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+  .btn-primary { background: rgba(100,170,115,0.85); color: #fff; }
+  .btn-ghost { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.7); }
 
-.topbar{
-  height:44px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:0 12px;
-  background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(255,255,255,0.08);
-}
+  /* TOPBAR */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(10,10,10,0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+  }
 
-.apps{
-  padding:20px;
-  display:grid;
-  grid-template-columns:repeat(auto-fill,90px);
-  gap:12px;
-}
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+    padding: 28px;
+  }
 
-.app{
-  text-align:center;
-  padding:10px;
-  border-radius:14px;
-  background:rgba(255,255,255,0.06);
-  cursor:pointer;
-  transition:0.2s;
-}
-.app:hover{transform:translateY(-3px);background:rgba(100,170,115,0.2);}
+  .tile {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 16px;
+    padding: 16px 10px;
+    text-align: center;
+    cursor: pointer;
+  }
 
-/* TASKBAR */
-.taskbar{
-  position:absolute;
-  bottom:10px;
-  left:50%;
-  transform:translateX(-50%);
-  display:flex;
-  gap:10px;
-  padding:10px;
-  border-radius:16px;
-  background:rgba(255,255,255,0.06);
-  backdrop-filter:blur(20px);
-}
-.taskbtn{
-  width:42px;
-  height:42px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:12px;
-  cursor:pointer;
-  background:rgba(255,255,255,0.08);
-}
-.taskbtn:hover{background:rgba(100,170,115,0.25);}
+  .tile-icon { font-size: 22px; margin-bottom: 8px; }
+  .tile-name { font-size: 12px; color: rgba(255,255,255,0.8); }
 
-/* WINDOW SYSTEM */
-.window{
-  position:absolute;
-  width:420px;
-  height:320px;
-  background:rgba(20,20,20,0.7);
-  backdrop-filter:blur(22px);
-  border:1px solid rgba(255,255,255,0.1);
-  border-radius:14px;
-  overflow:hidden;
-}
+  /* WINDOW SYSTEM */
+  .window {
+    position: absolute;
+    width: 460px;
+    height: 340px;
+    background: rgba(20,20,20,0.75);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    overflow: hidden;
+    z-index: 50;
+  }
 
-.winbar{
-  height:32px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:0 8px;
-  background:rgba(255,255,255,0.06);
-  cursor:grab;
-}
+  .winbar {
+    height: 34px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+    background: rgba(255,255,255,0.06);
+    cursor: grab;
+  }
 
-iframe{
-  width:100%;
-  height:calc(100% - 32px);
-  border:none;
-}
+  iframe { width: 100%; height: calc(100% - 34px); border: none; }
+
+  .winbtns button {
+    margin-left: 6px;
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+  }
+
+  /* ADMIN */
+  .admin-row {
+    display:flex;
+    justify-content:space-between;
+    padding:10px;
+    background:rgba(255,255,255,0.05);
+    margin-bottom:6px;
+    border-radius:10px;
+  }
+
+  .del-btn {
+    background: rgba(248,113,113,0.2);
+    border: 1px solid rgba(248,113,113,0.3);
+    color: #f87171;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
 
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="login" class="screen active">
-  <div class="card">
-    <h2>Jay OS v3</h2>
-    <input id="u" placeholder="username" />
-    <input id="p" placeholder="password" type="password" />
-    <button onclick="login()">Login</button>
-    <button onclick="signup()">Signup</button>
+<!-- AUTH -->
+<div id="auth-screen" class="screen active">
+  <div class="glass-card">
+    <h2>Jay OS</h2>
+    <button class="btn btn-primary" onclick="show('login')">Login</button>
+    <button class="btn btn-ghost" onclick="show('signup')">Signup</button>
   </div>
 </div>
 
-<!-- DESKTOP -->
-<div id="desktop">
+<div id="login" class="screen">
+  <div class="glass-card">
+    <input id="lu" placeholder="username">
+    <input id="lp" type="password" placeholder="password">
+    <button class="btn btn-primary" onclick="login()">Login</button>
+    <button class="btn btn-ghost" onclick="show('auth-screen')">Back</button>
+  </div>
+</div>
+
+<div id="signup" class="screen">
+  <div class="glass-card">
+    <input id="su" placeholder="username">
+    <input id="sp" type="password" placeholder="invite password">
+    <button class="btn btn-primary" onclick="signup()">Signup</button>
+    <button class="btn btn-ghost" onclick="show('auth-screen')">Back</button>
+  </div>
+</div>
+
+<!-- OS -->
+<div id="os" style="display:none;">
 
   <div class="topbar">
     <div>🖥 Jay OS v3</div>
-    <div id="user"></div>
+    <div>
+      <span id="user"></span>
+      <button onclick="logout()">Logout</button>
+      <button onclick="openAdminPrompt()">Admin</button>
+    </div>
   </div>
 
-  <div class="apps" id="apps"></div>
+  <div class="grid" id="grid"></div>
+</div>
 
-  <div class="taskbar">
-    <div class="taskbtn" onclick="loadLinks()">🔄</div>
-    <div class="taskbtn" onclick="logout()">⏻</div>
+<!-- ADMIN OVERLAY -->
+<div id="admin" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:999;align-items:center;justify-content:center;">
+  <div class="glass-card">
+    <input id="apass" type="password" placeholder="admin pass">
+    <button class="btn btn-primary" onclick="checkAdmin()">Enter</button>
+    <div id="alist"></div>
   </div>
-
 </div>
 
 <script>
-let currentUser = localStorage.getItem('user');
-let links = [];
+let user=null;
+let links=[];
+let adminKey=null;
 
-if(currentUser){
-  document.getElementById('login').classList.remove('active');
-  document.getElementById('desktop').classList.add('active');
-  document.getElementById('user').innerText = currentUser;
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function openOS(){
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('os').style.display='block';
+  document.getElementById('user').innerText=user;
   loadLinks();
 }
 
 async function login(){
-  const r = await fetch('/api/login',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({username:u.value,password:p.value})
-  });
-  const d = await r.json();
-  if(d.ok){
-    localStorage.setItem('user',d.username);
-    location.reload();
-  }
+  const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:lu.value,password:lp.value})});
+  const d=await r.json();
+  if(d.ok){user=d.username;openOS();}
 }
 
 async function signup(){
-  const r = await fetch('/api/signup',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({username:u.value,password:p.value})
-  });
-  const d = await r.json();
-  if(d.ok){
-    localStorage.setItem('user',d.username);
-    location.reload();
-  }
+  const r=await fetch('/api/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:su.value,password:sp.value})});
+  const d=await r.json();
+  if(d.ok){user=d.username;openOS();}
 }
 
 async function loadLinks(){
-  const r = await fetch('/api/links');
-  links = await r.json();
+  const r=await fetch('/api/links');
+  links=await r.json();
   render();
 }
 
 function render(){
-  const a = document.getElementById('apps');
-  a.innerHTML = '';
+  const g=document.getElementById('grid');
+  g.innerHTML='';
   links.forEach(l=>{
-    const d = document.createElement('div');
-    d.className='app';
-    d.innerHTML = `<div>${l.emoji}</div><div style='font-size:11px'>${l.name}</div>`;
-    d.onclick = ()=>openWin(l);
-    a.appendChild(d);
+    const d=document.createElement('div');
+    d.className='tile';
+    d.innerHTML=`<div class='tile-icon'>${l.emoji}</div><div class='tile-name'>${l.name}</div>`;
+    d.onclick=()=>openWindow(l);
+    g.appendChild(d);
   });
 }
 
-function openWin(app){
-  const w = document.createElement('div');
+function openWindow(app){
+  const w=document.createElement('div');
   w.className='window';
-  w.style.top='80px';
-  w.style.left='80px';
+  w.style.top='100px';
+  w.style.left='100px';
 
-  w.innerHTML = `
+  w.innerHTML=`
     <div class='winbar'>
-      <div>${app.name}</div>
-      <div>
+      <span>${app.name}</span>
+      <div class='winbtns'>
         <button onclick="window.open('${app.url}','_blank')">↗</button>
-        <button onclick="this.closest('.window').remove()">x</button>
+        <button onclick="this.closest('.window').remove()">✕</button>
       </div>
     </div>
     <iframe src='${app.url}'></iframe>
@@ -257,12 +277,32 @@ function openWin(app){
   document.body.appendChild(w);
 }
 
-function logout(){
-  localStorage.removeItem('user');
-  location.reload();
+function logout(){location.reload();}
+
+function openAdminPrompt(){
+  document.getElementById('admin').style.display='flex';
+}
+
+function checkAdmin(){
+  if(apass.value==='messi2be'){
+    adminKey=apass.value;
+    loadAdmin();
+  }
+}
+
+async function loadAdmin(){
+  const r=await fetch('/api/links');
+  const d=await r.json();
+  document.getElementById('alist').innerHTML=d.map(l=>
+    `<div class='admin-row'>${l.name}<button class='del-btn' onclick="deleteLink(${l.id})">del</button></div>`
+  ).join('');
+}
+
+async function deleteLink(id){
+  await fetch('/api/links/'+id,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({adminPassword:'messi2be'})});
+  loadAdmin();
 }
 
 </script>
-
 </body>
 </html>
