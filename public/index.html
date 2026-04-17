@@ -8,72 +8,76 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet"/>
 
 <style>
-:root{
-  --bg:#05070f;
-  --glass:rgba(255,255,255,0.06);
-  --border:rgba(255,255,255,0.1);
-  --text:rgba(255,255,255,0.9);
-  --muted:rgba(255,255,255,0.4);
-  --accent:#00ffd5;
-}
-
-*{margin:0;padding:0;box-sizing:border-box;}
 body{
+  margin:0;
   font-family:Syne,sans-serif;
-  background:var(--bg);
-  color:var(--text);
+  background:#05070f;
+  color:white;
   overflow:hidden;
 }
 
-/* wallpaper */
 .wall{
   position:fixed;inset:0;
-  background:radial-gradient(circle at 20% 20%,rgba(0,255,213,0.15),transparent 40%),
-             radial-gradient(circle at 80% 70%,rgba(120,80,255,0.15),transparent 45%);
+  background:radial-gradient(circle at 20% 20%,rgba(0,255,200,0.18),transparent 40%),
+             radial-gradient(circle at 80% 80%,rgba(120,80,255,0.18),transparent 40%);
   filter:blur(60px);
-  z-index:0;
 }
 
 /* LOGIN */
-#login{
+#auth{
   position:fixed;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  z-index:10;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
+
 .card{
   width:340px;
-  padding:30px;
+  padding:28px;
   border-radius:18px;
-  background:var(--glass);
-  border:1px solid var(--border);
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);
   backdrop-filter:blur(20px);
   text-align:center;
 }
+
+h2{margin:0 0 10px 0;}
+
 input{
   width:100%;
-  margin-top:12px;
+  margin-top:10px;
   padding:12px;
   border-radius:10px;
-  border:1px solid var(--border);
+  border:1px solid rgba(255,255,255,0.1);
   background:rgba(255,255,255,0.05);
   color:white;
+  outline:none;
 }
+
 button{
   width:100%;
   margin-top:12px;
   padding:12px;
   border:none;
   border-radius:10px;
-  background:var(--accent);
+  background:linear-gradient(135deg,#00ffd5,#7c5cff);
   cursor:pointer;
-  font-weight:600;
+  font-weight:700;
+}
+
+small{color:rgba(255,255,255,0.5);display:block;margin-top:8px;}
+
+.err{
+  color:#ff6b6b;
+  font-size:12px;
+  margin-top:8px;
+  min-height:16px;
 }
 
 /* OS */
 #os{
   display:none;
   height:100vh;
-  flex-direction:column;
 }
 
 .topbar{
@@ -82,57 +86,44 @@ button{
   justify-content:space-between;
   align-items:center;
   padding:0 16px;
-  background:rgba(0,0,0,0.3);
-  border-bottom:1px solid var(--border);
-  backdrop-filter:blur(20px);
+  background:rgba(0,0,0,0.4);
+  border-bottom:1px solid rgba(255,255,255,0.1);
 }
 
-.launchpad{
-  flex:1;
+.grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,100px);
-  gap:18px;
+  gap:16px;
   padding:30px;
 }
 
 .app{
-  width:100px;height:100px;
-  background:var(--glass);
-  border:1px solid var(--border);
+  width:100px;
+  height:100px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
   border-radius:16px;
   display:flex;
   flex-direction:column;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   cursor:pointer;
   transition:0.2s;
 }
 .app:hover{transform:scale(1.08);}
+.icon{font-size:24px;}
+.name{font-size:11px;margin-top:6px;opacity:0.7;}
 
-.icon{font-size:26px;}
-.name{font-size:11px;margin-top:6px;color:var(--muted);}
-
-/* window */
-.window{
+.modal{
   position:absolute;
-  width:700px;
-  height:500px;
   top:80px;left:80px;
+  width:700px;height:500px;
   background:white;
   border-radius:12px;
   overflow:hidden;
-  box-shadow:0 20px 60px rgba(0,0,0,0.6);
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
 }
-.bar{
-  height:34px;
-  background:#111;
-  color:white;
-  display:flex;
-  align-items:center;
-  padding:0 10px;
-  font-size:12px;
-}
-iframe{width:100%;height:calc(100% - 34px);border:none;}
+iframe{width:100%;height:100%;border:none;}
 </style>
 </head>
 
@@ -140,13 +131,28 @@ iframe{width:100%;height:calc(100% - 34px);border:none;}
 
 <div class="wall"></div>
 
-<!-- LOGIN -->
-<div id="login">
+<!-- AUTH -->
+<div id="auth">
   <div class="card">
-    <h2>Jay OS</h2>
-    <input id="u" placeholder="username">
-    <input id="p" type="password" placeholder="password">
-    <button onclick="login()">Enter</button>
+
+    <h2>🧊 Jay OS</h2>
+
+    <input id="user" placeholder="username"/>
+    <input id="pass" type="password" placeholder="password"/>
+
+    <div class="err" id="err"></div>
+
+    <button onclick="login()">Login</button>
+
+    <small>Signup uses invite password: "Jay" or "tejushasnoaura"</small>
+
+    <hr style="margin:14px 0;border:1px solid rgba(255,255,255,0.1)">
+
+    <input id="su-user" placeholder="new username"/>
+    <input id="su-pass" placeholder="invite password"/>
+
+    <button onclick="signup()">Create Account</button>
+
   </div>
 </div>
 
@@ -154,65 +160,92 @@ iframe{width:100%;height:calc(100% - 34px);border:none;}
 <div id="os">
   <div class="topbar">
     <div>🧊 Jay OS</div>
-    <button onclick="logout()">logout</button>
+    <button onclick="logout()">Logout</button>
   </div>
 
-  <div class="launchpad" id="apps"></div>
+  <div class="grid" id="grid"></div>
 </div>
 
 <script>
-let USER=null;
-let LINKS=[];
+
+let LINKS = [];
 
 async function login(){
-  const u=document.getElementById("u").value;
-  const p=document.getElementById("p").value;
+  const username = document.getElementById("user").value;
+  const password = document.getElementById("pass").value;
 
-  const r=await fetch("/api/login",{
+  const r = await fetch("/api/login",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({username:u,password:p})
+    body:JSON.stringify({username,password})
   });
 
-  const d=await r.json();
-  if(d.ok){
-    USER=u;
-    document.getElementById("login").style.display="none";
-    document.getElementById("os").style.display="flex";
-    loadLinks();
+  const d = await r.json();
+
+  if(!d.ok){
+    document.getElementById("err").textContent = d.error;
+    return;
   }
+
+  startOS();
+}
+
+async function signup(){
+  const username = document.getElementById("su-user").value;
+  const password = document.getElementById("su-pass").value;
+
+  const r = await fetch("/api/signup",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({username,password})
+  });
+
+  const d = await r.json();
+
+  if(!d.ok){
+    document.getElementById("err").textContent = d.error;
+    return;
+  }
+
+  document.getElementById("err").textContent = "Account created! Now login.";
 }
 
 function logout(){
   location.reload();
 }
 
-async function loadLinks(){
-  const r=await fetch("/api/links");
-  LINKS=await r.json();
+async function startOS(){
+  document.getElementById("auth").style.display="none";
+  document.getElementById("os").style.display="block";
+  loadLinks();
+}
 
-  const apps=document.getElementById("apps");
-  apps.innerHTML="";
+async function loadLinks(){
+  const r = await fetch("/api/links");
+  LINKS = await r.json();
+
+  const grid = document.getElementById("grid");
+  grid.innerHTML="";
 
   LINKS.forEach(l=>{
-    const div=document.createElement("div");
+    const div = document.createElement("div");
     div.className="app";
-    div.innerHTML=`<div class="icon">${l.emoji||"🔗"}</div>
-                   <div class="name">${l.name}</div>`;
-    div.onclick=()=>openWin(l.url,l.name);
-    apps.appendChild(div);
+    div.innerHTML=`
+      <div class="icon">${l.emoji}</div>
+      <div class="name">${l.name}</div>
+    `;
+    div.onclick=()=>open(l.url);
+    grid.appendChild(div);
   });
 }
 
-function openWin(url,name){
-  const w=document.createElement("div");
-  w.className="window";
-  w.innerHTML=`
-    <div class="bar">${name} <button onclick="this.closest('.window').remove()" style="margin-left:auto">x</button></div>
-    <iframe src="${url}"></iframe>
-  `;
+function open(url){
+  const w = document.createElement("div");
+  w.className="modal";
+  w.innerHTML=`<iframe src="${url}"></iframe>`;
   document.body.appendChild(w);
 }
+
 </script>
 
 </body>
