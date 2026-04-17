@@ -16,10 +16,11 @@ body{
   overflow:hidden;
 }
 
+/* WALL */
 .wall{
   position:fixed;inset:0;
-  background:radial-gradient(circle at 20% 20%,rgba(0,255,200,0.18),transparent 40%),
-             radial-gradient(circle at 80% 80%,rgba(120,80,255,0.18),transparent 40%);
+  background:radial-gradient(circle at 20% 20%,rgba(0,255,200,0.15),transparent 40%),
+             radial-gradient(circle at 80% 80%,rgba(120,80,255,0.15),transparent 40%);
   filter:blur(60px);
 }
 
@@ -29,19 +30,18 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
+  z-index:10;
 }
 
 .card{
   width:340px;
-  padding:28px;
+  padding:26px;
   border-radius:18px;
   background:rgba(255,255,255,0.06);
   border:1px solid rgba(255,255,255,0.12);
-  backdrop-filter:blur(20px);
+  backdrop-filter:blur(22px);
   text-align:center;
 }
-
-h2{margin:0 0 10px 0;}
 
 input{
   width:100%;
@@ -65,36 +65,36 @@ button{
   font-weight:700;
 }
 
-small{color:rgba(255,255,255,0.5);display:block;margin-top:8px;}
-
-.err{
-  color:#ff6b6b;
-  font-size:12px;
-  margin-top:8px;
-  min-height:16px;
-}
+.err{color:#ff6b6b;font-size:12px;margin-top:8px;min-height:16px;}
 
 /* OS */
 #os{
   display:none;
   height:100vh;
+  flex-direction:column;
 }
 
+/* TOPBAR */
 .topbar{
   height:40px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:0 16px;
+  padding:0 14px;
   background:rgba(0,0,0,0.4);
   border-bottom:1px solid rgba(255,255,255,0.1);
 }
 
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,100px);
-  gap:16px;
-  padding:30px;
+/* LAUNCHPAD */
+.launchpad{
+  position:absolute;
+  inset:0;
+  display:none;
+  flex-wrap:wrap;
+  padding:60px;
+  gap:18px;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(30px);
 }
 
 .app{
@@ -108,22 +108,71 @@ small{color:rgba(255,255,255,0.5);display:block;margin-top:8px;}
   justify-content:center;
   align-items:center;
   cursor:pointer;
-  transition:0.2s;
 }
 .app:hover{transform:scale(1.08);}
 .icon{font-size:24px;}
-.name{font-size:11px;margin-top:6px;opacity:0.7;}
+.name{font-size:11px;opacity:0.7;margin-top:6px;}
 
-.modal{
+/* DOCK */
+.dock{
   position:absolute;
+  bottom:10px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:10px;
+  padding:10px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:18px;
+}
+
+.dock-btn{
+  width:48px;height:48px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,0.08);
+  cursor:pointer;
+}
+
+/* WINDOWS */
+.window{
+  position:absolute;
+  width:700px;
+  height:500px;
   top:80px;left:80px;
-  width:700px;height:500px;
   background:white;
   border-radius:12px;
   overflow:hidden;
-  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
+  z-index:20;
 }
-iframe{width:100%;height:100%;border:none;}
+
+.bar{
+  height:34px;
+  background:#111;
+  color:white;
+  display:flex;
+  align-items:center;
+  padding:0 10px;
+  font-size:12px;
+}
+
+iframe{width:100%;height:calc(100% - 34px);border:none;}
+
+/* ADMIN */
+#admin{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(20px);
+  z-index:50;
+  padding:30px;
+  overflow:auto;
+}
 </style>
 </head>
 
@@ -131,10 +180,9 @@ iframe{width:100%;height:100%;border:none;}
 
 <div class="wall"></div>
 
-<!-- AUTH -->
+<!-- LOGIN -->
 <div id="auth">
   <div class="card">
-
     <h2>🧊 Jay OS</h2>
 
     <input id="user" placeholder="username"/>
@@ -144,106 +192,157 @@ iframe{width:100%;height:100%;border:none;}
 
     <button onclick="login()">Login</button>
 
-    <small>Signup uses invite password: "Jay" or "tejushasnoaura"</small>
-
     <hr style="margin:14px 0;border:1px solid rgba(255,255,255,0.1)">
 
     <input id="su-user" placeholder="new username"/>
     <input id="su-pass" placeholder="invite password"/>
-
     <button onclick="signup()">Create Account</button>
-
   </div>
 </div>
 
 <!-- OS -->
 <div id="os">
+
   <div class="topbar">
     <div>🧊 Jay OS</div>
-    <button onclick="logout()">Logout</button>
+    <div>
+      <button onclick="toggleLaunchpad()">Launchpad</button>
+      <button onclick="doLogout()">Logout</button>
+    </div>
   </div>
 
-  <div class="grid" id="grid"></div>
+  <div class="launchpad" id="launchpad"></div>
+
+  <div class="dock">
+    <div class="dock-btn" onclick="toggleLaunchpad()">⊞</div>
+    <div class="dock-btn" onclick="openAdmin()">⚙️</div>
+  </div>
+
+</div>
+
+<!-- ADMIN PANEL (RESTORED) -->
+<div id="admin">
+  <h2>Admin Panel</h2>
+
+  <button onclick="closeAdmin()">Close</button>
+
+  <h3>Users</h3>
+  <div id="users"></div>
+
+  <h3>Links</h3>
+  <div id="links"></div>
 </div>
 
 <script>
 
 let LINKS = [];
+let adminPassword = null;
 
+/* LOGIN */
 async function login(){
-  const username = document.getElementById("user").value;
-  const password = document.getElementById("pass").value;
+  const username = user.value;
+  const password = pass.value;
 
-  const r = await fetch("/api/login",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
+  const r = await fetch('/api/login',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
     body:JSON.stringify({username,password})
   });
 
   const d = await r.json();
 
   if(!d.ok){
-    document.getElementById("err").textContent = d.error;
+    err.textContent = d.error;
     return;
   }
 
   startOS();
 }
 
+/* SIGNUP (INVITE SYSTEM PRESERVED) */
 async function signup(){
   const username = document.getElementById("su-user").value;
   const password = document.getElementById("su-pass").value;
 
-  const r = await fetch("/api/signup",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
+  const r = await fetch('/api/signup',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
     body:JSON.stringify({username,password})
   });
 
   const d = await r.json();
 
   if(!d.ok){
-    document.getElementById("err").textContent = d.error;
+    err.textContent = d.error;
     return;
   }
 
-  document.getElementById("err").textContent = "Account created! Now login.";
+  err.textContent = "Account created. Login now.";
 }
 
-function logout(){
-  location.reload();
-}
-
-async function startOS(){
-  document.getElementById("auth").style.display="none";
-  document.getElementById("os").style.display="block";
+/* START OS */
+function startOS(){
+  auth.style.display="none";
+  os.style.display="flex";
   loadLinks();
 }
 
+/* LINKS */
 async function loadLinks(){
-  const r = await fetch("/api/links");
+  const r = await fetch('/api/links');
   LINKS = await r.json();
 
-  const grid = document.getElementById("grid");
-  grid.innerHTML="";
+  const lp = document.getElementById("launchpad");
+  lp.innerHTML="";
 
   LINKS.forEach(l=>{
-    const div = document.createElement("div");
+    const div=document.createElement("div");
     div.className="app";
-    div.innerHTML=`
-      <div class="icon">${l.emoji}</div>
-      <div class="name">${l.name}</div>
-    `;
+    div.innerHTML=`<div class="icon">${l.emoji}</div><div class="name">${l.name}</div>`;
     div.onclick=()=>open(l.url);
-    grid.appendChild(div);
+    lp.appendChild(div);
   });
 }
 
 function open(url){
-  const w = document.createElement("div");
-  w.className="modal";
-  w.innerHTML=`<iframe src="${url}"></iframe>`;
+  const w=document.createElement("div");
+  w.className="window";
+  w.innerHTML=`
+    <div class="bar">${url} <button onclick="this.closest('.window').remove()" style="margin-left:auto">X</button></div>
+    <iframe src="${url}"></iframe>
+  `;
   document.body.appendChild(w);
+}
+
+/* LAUNCHPAD */
+function toggleLaunchpad(){
+  const lp=document.getElementById("launchpad");
+  lp.style.display = lp.style.display==="flex" ? "none":"flex";
+}
+
+/* ADMIN */
+function openAdmin(){
+  const p = prompt("Admin password:");
+  if(p !== "messi2be") return;
+  adminPassword = p;
+  admin.style.display="block";
+  loadAdmin();
+}
+
+async function loadAdmin(){
+  const u = await fetch(`/api/users?adminPassword=${adminPassword}`).then(r=>r.json());
+  const l = await fetch('/api/links').then(r=>r.json());
+
+  users.innerHTML = u.users.map(x=>`<div>👤 ${x}</div>`).join('');
+  links.innerHTML = l.map(x=>`<div>🔗 ${x.name}</div>`).join('');
+}
+
+function closeAdmin(){
+  admin.style.display="none";
+}
+
+function doLogout(){
+  location.reload();
 }
 
 </script>
